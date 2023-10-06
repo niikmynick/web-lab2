@@ -1,2 +1,4 @@
-package com.example.weblab2;public class AreaCheckServlet {
+package com.example.weblab2;
+
+public class AreaCheckServlet {
 }

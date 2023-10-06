@@ -1,2 +1,4 @@
-package com.example.weblab2;public class ControllerServlet {
+package com.example.weblab2;
+
+public class ControllerServlet {
 }

@@ -1,5 +1,5 @@
-import {draw} from "./script/drawer"
-import {validateForm} from "./script/validation"
+import {draw} from "./src/script/drawer"
+import {validateForm} from "./src/script/validation"
 
 $(document).ready(function(){
     $.ajax({
