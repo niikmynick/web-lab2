@@ -1,6 +1,5 @@
 package com.example.weblab2.servlets;
 
-import com.example.weblab2.beans.Hit;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,11 +15,6 @@ import java.util.logging.Logger;
 public class ControllerServlet extends jakarta.servlet.http.HttpServlet {
 
     private static final Logger logger = Logger.getLogger(ControllerServlet.class.getName());
-    private final UserCollection hitHistory;
-
-    public ControllerServlet() {
-        hitHistory = new UserCollection();
-    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -49,25 +43,9 @@ public class ControllerServlet extends jakarta.servlet.http.HttpServlet {
             context.getRequestDispatcher("/areaCheck-servlet").forward(request, response);
 
         } else {
-            logger.info(x);
-            logger.info(y);
-            logger.info(r);
             // forward to JSP with form
             context.getRequestDispatcher("/index.jsp").forward(request, response);
 
-//            request.setAttribute("errorMessage", "Неверный формат данных");
-//            logger.info("Some data missing");
-//            request.setAttribute("hitHistory", hitHistory);
-//            getServletContext()
-//                    .getRequestDispatcher("/index.jsp")
-//                    .forward(request, response);
-//            return;
         }
     }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        logger.info("received GET request");
-    }
-
 }
