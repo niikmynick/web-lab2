@@ -77,12 +77,31 @@ input[type="submit"] {
     outline: none;
 }
 
+#back-div {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+#back {
+    position: absolute;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+    font-size: 12px;
+}
+
+
 #results-div {
     margin-top: 20px;
     padding: 20px;
     border: 1px solid #ccc;
     background-color: #f9f9f9;
-    border-radius: 10px;
+    border-radius: 30px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     /*display: none;*/
 }
