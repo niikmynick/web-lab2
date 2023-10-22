@@ -1,4 +1,4 @@
-package com.example.weblab2;
+package com.example.weblab2.servlets;
 
 import java.io.*;
 import jakarta.servlet.http.*;
@@ -22,6 +22,4 @@ public class HelloServlet extends HttpServlet {
         out.println("</body></html>");
     }
 
-    public void destroy() {
-    }
 }
