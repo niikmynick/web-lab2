@@ -1,15 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%--<!DOCTYPE html>--%>
-<%--<html>--%>
-<%--  <head>--%>
-<%--    <title>JSP - Hello World</title>--%>
-<%--  </head>--%>
-<%--  <body>--%>
-<%--    <h1><%= "Hello World!" %></h1>--%>
-<%--    <br/>--%>
-<%--    <a href="hello-servlet">Hello Servlet</a>--%>
-<%--  </body>--%>
-<%--</html>--%>
+<%@ page import="com.example.weblab2.beans.UserCollection" %>
+<%@ page import="com.example.weblab2.beans.Hit" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,17 +12,35 @@
 <header class="header">
   <div>
     <span>Nikita Kobik, P3224</span>
-    <span>variant 3404</span>
+    <span>variant 24927</span>
   </div>
 </header>
 
+<%
+  ServletContext context = request.getServletContext();
+  UserCollection userCollection = (UserCollection) context.getAttribute("userCollection");
+  String posR = "R";
+  String negR = "-R";
+  String posHalfR = "R/2";
+  String negHalfR = "-R/2";
+  if (userCollection != null) {
+    Hit lastHit = userCollection.getCollection().get(userCollection.getCollection().size() - 1);
+    double lastR = lastHit.getR();
+
+    posR = String.valueOf(lastR);
+    negR = String.valueOf(-lastR);
+    posHalfR = String.valueOf(lastR / 2);
+    negHalfR = String.valueOf(-lastR / 2);
+  }
+%>
+
 <div class="top-div">
-  <div class="graph-div">
+  <div class="graph-div" id="graph-svg">
     <svg width="400" height="400">
       <!-- Scopes -->
-      <polygon class="figure" points="200,200 200,100 300,200" fill="lightblue"></polygon>
-      <rect class="figure" x="200" y="200" width="50" height="100" fill="lightblue"></rect>
-      <circle class="figure" cx="200" cy="200" r="50" fill="lightblue" mask="url(#mask)"></circle>
+      <polygon class="figure" points="200,200 200,150 300,200" fill="lightblue"></polygon>
+      <rect class="figure" x="200" y="200" width="100" height="50" fill="lightblue"></rect>
+      <circle class="figure" cx="200" cy="200" r="100" fill="lightblue" mask="url(#mask)"></circle>
       <mask id="mask">
         <rect x="0" y="0" width="200" height="200" fill="white"></rect>
       </mask>
@@ -50,31 +59,32 @@
 
       <!-- X-axis labels -->
       <circle cx="100" cy="200" r="3" fill="black"></circle>
-      <text x="100" y="220" text-anchor="middle" class="r-minus-label">-R</text>
+
+      <text x="100" y="220" text-anchor="middle" class="r-minus-label"> <%=negR%> </text>
 
       <circle cx="150" cy="200" r="3" fill="black"></circle>
-      <text x="150" y="220" text-anchor="middle" class="r-half-minus-label">-R/2</text>
+      <text x="150" y="220" text-anchor="middle" class="r-half-minus-label"> <%=negHalfR%> </text>
 
       <circle cx="250" cy="200" r="3" fill="black"></circle>
-      <text x="250" y="220" text-anchor="middle" class="r-half-label">R/2</text>
+      <text x="250" y="220" text-anchor="middle" class="r-half-label"> <%=posHalfR%> </text>
 
       <circle cx="300" cy="200" r="3" fill="black"></circle>
-      <text x="300" y="220" text-anchor="middle" class="r-label">R</text>
+      <text x="300" y="220" text-anchor="middle" class="r-label"> <%=posR%> </text>
 
       <text x="344" y="230" text-anchor="middle">X</text>
 
       <!-- Y-axis labels -->
       <circle cx="200" cy="100" r="3" fill="black"></circle>
-      <text x="180" y="104" text-anchor="middle" class="r-label">R</text>
+      <text x="180" y="104" text-anchor="middle" class="r-label"> <%=posR%> </text>
 
       <circle cx="200" cy="150" r="3" fill="black"></circle>
-      <text x="180" y="154" text-anchor="middle" class="r-half-label">R/2</text>
+      <text x="180" y="154" text-anchor="middle" class="r-half-label"> <%=posHalfR%> </text>
 
       <circle cx="200" cy="300" r="3" fill="black"></circle>
-      <text x="180" y="254" text-anchor="middle" class="r-half-minus-label">-R/2</text>
+      <text x="180" y="254" text-anchor="middle" class="r-half-minus-label"> <%=negHalfR%> </text>
 
       <circle cx="200" cy="250" r="3" fill="black"></circle>
-      <text x="180" y="304" text-anchor="middle" class="r-minus-label">-R</text>
+      <text x="180" y="304" text-anchor="middle" class="r-minus-label"> <%=negR%> </text>
 
       <text x="180" y="60" text-anchor="middle">Y</text>
 
@@ -84,16 +94,26 @@
   </div>
 
   <div class="form-div">
-    <form id="user-input" action="server/script.php" method="get">
+    <form id="user-input" action="${pageContext.request.contextPath}/controller" method="post">
       <label for="x-value">X:</label>
-      <input type="text" id="x-value" name="x-value" value="">
+      <select name="x-value" id="x-value">
+        <option value="-4">-4</option>
+        <option value="-3">-3</option>
+        <option value="-2">-2</option>
+        <option value="-1">-1</option>
+        <option selected="selected" value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
 
       <label for="y-value">Y: </label>
       <input type="text" id="y-value" name="y-value">
 
       <label for="r-value">R:</label>
       <select name="r-value" id="r-value">
-        <option value="1">1</option>
+        <option selected="selected" value="1">1</option>
         <option value="1.5">1.5</option>
         <option value="2">2</option>
         <option value="2.5">2.5</option>
@@ -119,7 +139,25 @@
     </tr>
     </thead>
 
-    <tbody id="results-body"></tbody>
+    <tbody id="results-body">
+
+    <%
+      if (userCollection != null) {
+        for (Hit hit : userCollection.getCollection()) {
+    %>
+          <tr>
+            <td> <%= hit.getX() %> </td>
+            <td> <%= hit.getY() %> </td>
+            <td> <%= hit.getR() %> </td>
+            <td> <%= hit.getStatus() ? "In" : "Out" %> </td>
+            <td> <%= hit.getRequestTime() %> </td>
+            <td> <%= hit.getScriptTime() + " ms" %> </td>
+          </tr>
+    <%
+        }
+      }
+    %>
+    </tbody>
 
   </table>
 </div>
@@ -132,4 +170,9 @@
 </div>
 
 </body>
+
+<script src="script/warner.js"></script>
+<script src="script/validation.js"></script>
+<script src="script/drawer.js"></script>
+
 </html>
