@@ -1,5 +1,8 @@
 <%@ page import="com.example.weblab2.beans.UserCollection" %>
 <%@ page import="com.example.weblab2.beans.Hit" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Collections" %>
 <%--
   Created by IntelliJ IDEA.
   User: niik
@@ -27,7 +30,14 @@
 <%
     ServletContext context = request.getServletContext();
     UserCollection userCollection = (UserCollection) context.getAttribute("userCollection");
-    Hit lastHit = userCollection.getCollection().get( userCollection.getCollection().size() - 1 );
+    int batchSize = (int) context.getAttribute("batchSize");
+    ArrayList<Hit> lastHits = new ArrayList<Hit>();
+
+    for (int i = 0; i < batchSize; i++) {
+        lastHits.add(userCollection.getCollection().get(i));
+    }
+
+    Hit lastHit = userCollection.getCollection().get(batchSize - 1);
 %>
 
 <div class="top-div">
@@ -86,7 +96,14 @@
             <%
                 double centerX = 200;
                 double centerY = 200;
-                double scaleFactor = 100 / lastHit.getR();
+                double scaleFactor = 100;
+
+                for (Hit currentHit : lastHits) {
+                    scaleFactor = 100 / currentHit.getR();
+            %>
+                <circle cx=<%= (currentHit.getX() * scaleFactor) + centerX %> cy=<%= (currentHit.getY() * -scaleFactor) + centerY %> r="3" fill="red" id="point"></circle>
+            <%
+                }
             %>
 
             <!-- Hit point -->
@@ -115,16 +132,20 @@
 
         <tbody id="results-body">
 
-        <% for (Hit hit : userCollection.getCollection()) { %>
-            <tr>
-                <td> <%= hit.getX() %> </td>
-                <td> <%= hit.getY() %> </td>
-                <td> <%= hit.getR() %> </td>
-                <td> <%= hit.getStatus() ? "In" : "Out" %> </td>
-                <td> <%= hit.getRequestTime() %> </td>
-                <td> <%= hit.getScriptTime() + " ms" %> </td>
-            </tr>
-        <% } %>
+        <%
+            for (Hit hit : lastHits) {
+        %>
+        <tr>
+            <td> <%= Math.round(hit.getX() * 100.0) / 100.0 %> </td>
+            <td> <%= Math.round(hit.getY() * 100.0) / 100.0 %> </td>
+            <td> <%= hit.getR() %> </td>
+            <td> <%= hit.getStatus() ? "In" : "Out" %> </td>
+            <td> <%= hit.getRequestTime() %> </td>
+            <td> <%= hit.getScriptTime() + " ms" %> </td>
+        </tr>
+        <%
+            }
+        %>
 
         </tbody>
 
@@ -137,6 +158,7 @@
     </a>
 </div>
 
+<script src="./dist/bundle.js"></script>
 
 </body>
 </html>
