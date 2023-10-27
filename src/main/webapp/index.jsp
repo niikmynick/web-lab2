@@ -23,8 +23,8 @@
   String negR = "-R";
   String posHalfR = "R/2";
   String negHalfR = "-R/2";
-  if (userCollection != null) {
-    Hit lastHit = userCollection.getCollection().get(userCollection.getCollection().size() - 1);
+  if (userCollection != null && !userCollection.getCollection().isEmpty()) {
+    Hit lastHit = userCollection.getCollection().get(0);
     double lastR = lastHit.getR();
 
     posR = String.valueOf(lastR);
@@ -89,7 +89,32 @@
       <text x="180" y="60" text-anchor="middle">Y</text>
 
       <!-- Hit point -->
-      <circle cx="200" cy="200" r="3" fill="red" id="point"></circle>
+      <%
+        if (userCollection != null && !userCollection.getCollection().isEmpty()) {
+          int amount = Math.min(userCollection.getCollection().size(), 5);
+          double centerX = 200;
+          double centerY = 200;
+          double scaleFactor = 100;
+
+          Hit currentHit = userCollection.getCollection().get(0);
+          scaleFactor = 100 / currentHit.getR();
+      %>
+      <circle cx=<%= (currentHit.getX() * scaleFactor) + centerX %> cy=<%= (currentHit.getY() * -scaleFactor) + centerY %> r="3" fill="red" id="point0"></circle>
+      <%
+          for (int i = 1; i < userCollection.getCollection().size(); i++) {
+            currentHit = userCollection.getCollection().get(i);
+            scaleFactor = 100 / currentHit.getR();
+      %>
+        <circle cx=<%= (currentHit.getX() * scaleFactor) + centerX %> cy=<%= (currentHit.getY() * -scaleFactor) + centerY %> r="3" fill="gray" id="point <%=i%>"></circle>
+      <%
+          }
+        } else {
+      %>
+        <circle cx="200" cy="200" r="3" fill="red" id="point"></circle>
+      <%
+        }
+      %>
+
     </svg>
   </div>
 
@@ -111,14 +136,23 @@
       <label for="y-value">Y: </label>
       <input type="text" id="y-value" name="y-value">
 
-      <label for="r-value">R:</label>
-      <select name="r-value" id="r-value">
-        <option selected="selected" value="1">1</option>
-        <option value="1.5">1.5</option>
-        <option value="2">2</option>
-        <option value="2.5">2.5</option>
-        <option value="3">3</option>
-      </select>
+      <label>R:</label>
+      <div>
+        <label>1<input type="checkbox" class='rBox' value="1" name="r-value"></label>
+        <label>1.5<input type="checkbox" class='rBox' value="1.5" name="r-value"></label>
+        <label>2<input type="checkbox" class='rBox' value="2" name="r-value"></label>
+        <label>2.5<input type="checkbox" class='rBox' value="2.5" name="r-value"></label>
+        <label>3<input type="checkbox" class='rBox' value="3" name="r-value"></label>
+      </div>
+
+<%--      <label for="r-value">R:</label>--%>
+<%--      <select name="r-value" id="r-value">--%>
+<%--        <option selected="selected" value="1">1</option>--%>
+<%--        <option value="1.5">1.5</option>--%>
+<%--        <option value="2">2</option>--%>
+<%--        <option value="2.5">2.5</option>--%>
+<%--        <option value="3">3</option>--%>
+<%--      </select>--%>
 
       <input type="submit" value="Submit" id="submit-button">
     </form>
@@ -142,12 +176,12 @@
     <tbody id="results-body">
 
     <%
-      if (userCollection != null) {
+      if (userCollection != null && !userCollection.getCollection().isEmpty()) {
         for (Hit hit : userCollection.getCollection()) {
     %>
           <tr>
-            <td> <%= hit.getX() %> </td>
-            <td> <%= hit.getY() %> </td>
+            <td> <%= Math.round(hit.getX() * 100.0) / 100.0 %> </td>
+            <td> <%= Math.round(hit.getY() * 100.0) / 100.0 %> </td>
             <td> <%= hit.getR() %> </td>
             <td> <%= hit.getStatus() ? "In" : "Out" %> </td>
             <td> <%= hit.getRequestTime() %> </td>
@@ -171,8 +205,6 @@
 
 </body>
 
-<script src="script/warner.js"></script>
-<script src="script/validation.js"></script>
-<script src="script/drawer.js"></script>
+<script src="./dist/bundle.js"></script>
 
 </html>
