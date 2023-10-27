@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 @WebServlet(name = "areaCheckServlet", value = "/areaCheck-servlet")
@@ -27,64 +28,64 @@ public class AreaCheckServlet extends jakarta.servlet.http.HttpServlet {
         logger.info("received new data");
         ServletContext context = getServletContext();
 
-        double x, y, r;
+        double x, y;
+        double[] rValues;
 
         try {
-
             x = Double.parseDouble(request.getParameter("x-value"));
-            logger.info(String.valueOf(x));
             y = Double.parseDouble(request.getParameter("y-value"));
-            logger.info(String.valueOf(y));
-            r = Double.parseDouble(request.getParameter("r-value"));
-            logger.info(String.valueOf(r));
+
+            rValues = Arrays.stream(request.getParameterValues("r-value"))
+                    .mapToDouble(Double::parseDouble)
+                    .toArray();
 
         } catch (NumberFormatException e) {
-
             logger.info("Invalid data format");
-            logger.info(e.toString());
-            //            request.setAttribute("errorMessage", "Неверный формат данных");
-            //            getServletContext()
-            //                    .getRequestDispatcher("/index.jsp")
-            //                    .forward(request, response);
+            // forward to JSP with form
+            context.getRequestDispatcher("/index.jsp").forward(request, response);
             return;
         }
 
-        if (notValid(x, y, r)) {
-//            error
-            return;
-        }
 
-        UserCollection userCollection = (UserCollection) context.getAttribute("userCollection");
+        for (Double r : rValues) {
 
-        Hit hit = new Hit(x, y, r);
-        hit.setRequestTime( LocalDateTime.now().format( DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss") ) );
+            if (notValid(x, y, r)) {
+                logger.info("Invalid data format");
+                // forward to JSP with form
+                context.getRequestDispatcher("/index.jsp").forward(request, response);
+            }
 
-        if (x >= 0) {
-            if (y >= 0) {
-                hit.setStatus( x + y <= r );
+            UserCollection userCollection = (UserCollection) context.getAttribute("userCollection");
+
+            Hit hit = new Hit(x, y, r);
+            hit.setRequestTime( LocalDateTime.now().format( DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss") ) );
+
+            if (x >= 0) {
+                if (y >= 0) {
+                    hit.setStatus( x + y <= r );
+                } else {
+                    hit.setStatus( (x <= (r / 2)) && (y >= -r) );
+                }
             } else {
-                hit.setStatus( (x <= (r / 2)) && (y >= -r) );
+                if (y >= 0) {
+                    hit.setStatus( Math.pow(x, 2) + Math.pow(y, 2) <= Math.pow((r/2), 2) );
+                }
             }
-        } else {
-            if (y >= 0) {
-                hit.setStatus( Math.pow(x, 2) + Math.pow(y, 2) <= Math.pow((r/2), 2) );
-            }
+
+            long startTime = Long.parseLong( context.getAttribute("startTime").toString() );
+            long endTime = System.nanoTime();
+
+            hit.setScriptTime( String.valueOf((endTime - startTime) / 1000000) );
+
+            userCollection.getCollection().add(0, hit);
+            logger.info(hit + "added to history");
+
+            context.setAttribute("userCollection", userCollection);
         }
 
-        long startTime = Long.parseLong( context.getAttribute("startTime").toString() );
-        long endTime = System.nanoTime();
-
-        hit.setScriptTime( String.valueOf((endTime - startTime) / 1000000) );
-
-        userCollection.getCollection().add(hit);
-        logger.info(hit + "added to history");
-
-        context.setAttribute("userCollection", userCollection);
         logger.info("userCollection: " + context.getAttribute("userCollection"));
+        context.setAttribute("batchSize", rValues.length);
 
-//        getServletContext()
-//                .getRequestDispatcher("/result")
-//                .forward(request, response);
         context.getRequestDispatcher("/result.jsp").forward(request, response);
     }
 
