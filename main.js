@@ -1,81 +1,79 @@
-import {draw} from "./src/script/drawer"
-import {validateForm} from "./src/script/validation"
-
-$(document).ready(function(){
-    $.ajax({
-        url: 'server/hello.php',
-        method: "GET",
-        dataType: "html",
-        success: function(data){
-            console.log(data);
-            if (data) {
-                data = JSON.parse(data)
-                let t_x = 0
-                let t_y = 0
-                let t_r = 0
-
-                let temp = '';
-                for (let row of data) {
-                    temp += "<tr class='columns'> <td>" + row.x + "</td> <td>" +
-                        row.y + "</td> <td>" + row.r + "</td> <td>" + row.status +
-                        "</td> <td>" + row.current_time + "</td> <td>" + row.script_time + "</td> </tr>";
-                    t_x = row.x
-                    t_y = row.y
-                    t_r = row.r
-                }
-
-                $("#x-value").val(t_x)
-                $("#y-value").val(t_y)
-                $("#r-value").val(t_r)
-
-                $("#results-body").html(temp);
-            }
-        },
-        error: function(error){
-            console.log(error);
-        },
-    })
-})
+import {validateForm} from "./src/main/webapp/script/validation";
+import {showError} from "./src/main/webapp/script/warner"
+import {draw} from "./src/main/webapp/script/drawer";
 
 
-$("#user-input").on("submit", function(event){
-    event.preventDefault();
-    if (validateForm()) {
-        $.ajax({
-            url: 'server/script.php',
-            method: "GET",
-            data: $(this).serialize() + "&timezone=" + new Date().getTimezoneOffset(),
-            dataType: "html",
+// change values
+// let selector_R = document.querySelector("#r-value");
+let selector_X = document.querySelector("#x-value");
+let input_Y = document.querySelector("#y-value");
 
-            success: function(data){
-                console.log(data);
+// selector_R.addEventListener("change", function() {
+//     draw(selector_X.value, input_Y.value, selector_R.value);
+// });
 
-                if (data) {
-                    data = JSON.parse(data)
-                    let temp = '';
-                    for (let row of data) {
-                        temp += "<tr class='columns'> <td>" + row.x + "</td> <td>" +
-                            row.y + "</td> <td>" + row.r + "</td> <td>" + row.status +
-                            "</td> <td>" + row.current_time + "</td> <td>" + row.script_time + " ms </td> </tr>";
-                    }
+selector_X.addEventListener("change", function() {
+    let rValues = document.querySelectorAll('.rBox');
+    let r;
 
-                    let last = data.pop()
-                    draw(last.x, last.y, last.r)
+    rValues.forEach(checkbox => {
+        if (checkbox.checked) {
+            r = checkbox.value;
+        }
+    });
+    draw(selector_X.value, input_Y.value, r);
+});
 
-                    $("#results-body").html(temp);
-                }
-            },
-            error: function(error){
-                console.log(error);
-            },
-        })
+input_Y.addEventListener("input", function() {
+    let rValues = document.querySelectorAll('.rBox');
+    let r;
+
+    rValues.forEach(checkbox => {
+        if (checkbox.checked) {
+            r = checkbox.value;
+        }
+    });
+    draw(selector_X.value, input_Y.value, r);
+});
+
+
+// svg listener
+
+let svg = document.getElementById("graph-svg");
+
+svg.addEventListener('click', function (event) {
+
+    let rValues = document.querySelectorAll('.rBox');
+    let r;
+
+    rValues.forEach(checkbox => {
+        let flag = true
+        if (checkbox.checked && flag) {
+            r = checkbox.value;
+            flag = false
+        }
+    });
+
+    if (r !== null) {
+        let option = document.createElement('option');
+        let x = (event.offsetX - 200) / (100 / r)
+        let y = (event.offsetY - 200) / (-100 / r)
+
+        option.value = x.toString();
+        document.getElementById('x-value').appendChild(option);
+        document.getElementById('x-value').value = x;
+
+        document.getElementById('y-value').value = y;
+
+        document.getElementById('user-input').submit();
     }
 });
 
-let selector = document.querySelector("#r-value");
-// let xInput = document.getElementById("x-value");
-// let yInput = document.getElementById("y-value");
+// form listener
 
-selector.addEventListener("change", function() {
-    draw(0, 0, selector.value);
-});
+const form = document.getElementById('user-input')
+form.addEventListener('submit', event => {
+    if (!validateForm()) {
+        event.preventDefault();
+    }
+})

@@ -1,4 +1,4 @@
-function draw(x, y, r) {
+export function draw(x, y, r) {
     const circle = document.getElementById('point')
 
     const r_label = document.getElementsByClassName("r-label");
@@ -36,36 +36,3 @@ function draw(x, y, r) {
     }
 
 }
-
-let selector_R = document.querySelector("#r-value");
-let selector_X = document.querySelector("#x-value");
-
-selector_R.addEventListener("change", function() {
-    draw(selector_X.value, 0, selector_R.value);
-});
-
-selector_X.addEventListener("change", function() {
-    draw(selector_X.value, 0, selector_R.value);
-});
-
-
-let svg = document.getElementById("graph-svg");
-
-svg.addEventListener('click', function (event) {
-
-    let r = document.getElementById('r-value').value;
-
-    if (r !== null) {
-        let option = document.createElement('option');
-        let x = Math.round(((event.offsetX - 200) / (120 / r) + Number.EPSILON) * 100) / 100;
-        let y = Math.round(((event.offsetY - 200) / (-120 / r) + Number.EPSILON) * 100) / 100
-
-        option.value = x.toString();
-        document.getElementById('x-value').appendChild(option);
-        document.getElementById('x-value').value = x;
-
-        document.getElementById('y-value').value = y;
-
-        document.getElementById('user-input').submit();
-    }
-});
